@@ -2,6 +2,9 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.tx
+
+tttools/houdini/otls/backup
 
 # C extensions
 *.so
