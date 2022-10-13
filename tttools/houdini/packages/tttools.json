@@ -1,0 +1,21 @@
+{
+    "enable": "houdini_version >= '19.5'",
+    "version": "19.5.303",
+    "env" : [
+        {
+            "TT_ROOT"       : "$HOUDINI_PACKAGE_PATH/.."
+        },
+        {
+            "HOUDINI_PATH"  : {
+                "value"     : ["$TT_ROOT/tttools"],
+                "method"    : "prepend"
+            }
+        },
+        {
+            "TT_TEX"        : "$TT_ROOT/tttools/tex"
+        },
+        {
+            "TT_HDRI"       : "$TT_ROOT/tttools/hrdi"
+        }
+    ]
+}
