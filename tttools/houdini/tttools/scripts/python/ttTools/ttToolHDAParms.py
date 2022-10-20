@@ -1,4 +1,5 @@
 
+import os
 import hou
 
 class TTToolsHDAParms(object):
@@ -89,6 +90,56 @@ class TTToolsHDAParms(object):
             }
         }
 
+
+    def getAssetParts(self, node: hou.Node):
+        """ Get the asset part list from the asset geometry group.
+
+        Args:
+            node (:class:`hou.Node`) : The current HDA node.
+        """
+        # Update the current node.
+        self.node = node
+        # Get the asset geometry node.
+        assetNode = self.node.node("ASSET").node("OUT_FOCUS_CAMERA")
+        # Get the asset geometry primitive group list.
+        assetGeo = assetNode.geometry()
+        if(assetGeo):
+            groupList = assetGeo.primGroups()
+            # Define the menulist.
+            menulist = ["free", "free"]
+            for group in groupList:
+                menulist.append(group.name())
+                menulist.append(group.name())
+
+            return menulist
+        
+        return ["No Geoemetry", "No Geometry"]
+
+    def getHDRIListFromFolder(self, node: hou.Node):
+        """ Get the list of the hdri file in the hdri folder.
+
+        Args:
+            node (:class:`hou.Node`) : The current HDA node.
+        """
+        # Update the current node.
+        self.node = node
+        # Get the hdri folder.
+        hdriFolder = self.node.parm("hdriPath").evalAsString()
+        # Check if the folder exist.
+        if(os.path.exists(hdriFolder)):
+            # Get the hdri file in the folder.
+            files = [file for file in os.listdir(hdriFolder) 
+                if os.path.isfile(os.path.join(hdriFolder, file)) and
+                (file.split(".")[-1] == "hdr" or file.split(".")[-1] == "exr")]
+            # Build the menu list array.
+            menuList = []
+            for file in files:
+                menuList.append(file)
+                menuList.append(file)
+            
+            return menuList
+
+        return ["No File", "No File"]
 
     def applyPreset(self, preset: dict, presetMenu: str):
         """ Apply a preset from the menu parameters value.
@@ -297,7 +348,7 @@ class TTToolsHDAParms(object):
         camImageSize    = hou.FloatParmTemplate("camImageSize#", "Image Size", 2, default_value=[1920, 1080])
         camFocal        = hou.FloatParmTemplate("camFocal#", "Focal", 1, default_value=[50.0], min=0.0, max=1000.0)
         camAperture     = hou.FloatParmTemplate("camAperture#", "Aperture", 1, default_value=[41.4214], min=0.0, max=90.0)
-        camFocusScript  = """items = hou.phm().getAssetParts(kwargs['node'])\nreturn items"""
+        camFocusScript  = """items = hou.phm().dataUI.getAssetParts(kwargs['node'])\nreturn items"""
         camFocus        = hou.MenuParmTemplate("camFocus#", "Focus", (), item_generator_script=camFocusScript, default_value=1)
 
         camFolder.addParmTemplate(camName)
@@ -316,7 +367,7 @@ class TTToolsHDAParms(object):
         """ 
         folder              = hou.FolderParmTemplate("turnTableOpt#", "Turn Table", folder_type=hou.folderType.Collapsible)
 
-        assetPivotScript    = """items = hou.phm().getAssetParts(kwargs['node'])\nreturn items"""
+        assetPivotScript    = """items = hou.phm().dataUI.getAssetParts(kwargs['node'])\nreturn items"""
         assetPivot          = hou.MenuParmTemplate("ttAssetPivot#", "Asset Pivot", (), item_generator_script=assetPivotScript, default_value=1)
         preset              = hou.MenuParmTemplate("ttPreset#", "Preset", ("72", "24", "12"))
         assetRotationY      = hou.IntParmTemplate("ttAssetRotationY#", "Asset Rotation Y", 1, default_value=[72], min=1, max=200)
@@ -339,8 +390,9 @@ class TTToolsHDAParms(object):
         """
         folder          =  hou.FolderParmTemplate("hdriOpt#", "HDRI", folder_type=hou.folderType.Collapsible)
 
-        select          = hou.MenuParmTemplate("hdriSelect#", "Select", ())
-        intensity       = hou.FloatParmTemplate("hdriIntensity#", "Intensity", 1, default_value=[1.0], min=1, max=100)
+        select          = hou.MenuParmTemplate("hdriSelect#", "Select", (),
+            item_generator_script= "items = hou.phm().dataUI.getHDRIListFromFolder(kwargs['node'])\nreturn items")
+        intensity       = hou.FloatParmTemplate("hdriIntensity#", "Intensity", 1, default_value=[1.0], min=1, max=20)
         useBGColor      = hou.ToggleParmTemplate("hdriUseBGColor#", "Use Background Color", default_value=True)
         bgColor         = hou.FloatParmTemplate("hdriBGColor#", "Background Color", 3, default_value=[0.18, 0.18, 0.18], 
             look=hou.parmLook.ColorSquare, 

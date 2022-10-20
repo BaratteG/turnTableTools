@@ -6,6 +6,7 @@ __pycache__/
 
 tttools/houdini/tttools/otls/backup
 tttools/houdini/hip/backup
+tttools/houdini/otls/backup
 
 # C extensions
 *.so
