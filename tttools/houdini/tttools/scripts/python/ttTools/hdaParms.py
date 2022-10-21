@@ -2,7 +2,7 @@
 import os
 import hou
 
-class TTToolsHDAParms(object):
+class HDAParms(object):
 
     def __init__(self, node=None):
 

@@ -2,14 +2,15 @@
 import os
 import hou
 
-from .ttToolHDAParms import TTToolsHDAParms
+from .hdaParms      import HDAParms
+from .cameraParm    import CameraParm
 
-class TTTools(object):
+class HDA(object):
 
     def __init__(self):
         
         self.node   = None
-    
+
 
     def getCamerasList(self, node):
         """ Get the list of cameras from the hda parameters.
@@ -90,6 +91,19 @@ class TTTools(object):
     @property
     def camerasNetwork(self):
         self.node.node("CAMERAS")
+
+    @property
+    def subNetworkCameras(self):
+        return [node for node in self.camerasNetwork.children() if node.type().name() == "cam"]
+
+    @property
+    def camerasCount(self):
+        return self.node.parm("cameras").eval()
+    
+    @property
+    def camerasParms(self):
+        camCount = self.camerasCount
+        return [CameraParm(self.node, i) for i in range(camCount)]
     
 
     

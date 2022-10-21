@@ -1,4 +1,4 @@
 
-from .ttTools           import TTTools
-from .ttToolHDAParms    import TTToolsHDAParms
+from .hda               import HDA
+from .hdaParms          import HDAParms
 from .cameraParm        import CameraParm
