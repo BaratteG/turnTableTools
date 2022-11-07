@@ -200,6 +200,18 @@ class HDAParms(object):
         """ 
         folder              = hou.FolderParmTemplate("arnoldTab", "Arnold", folder_type=hou.folderType.Tabs)
 
+
+        localRender         = hou.ButtonParmTemplate("localRender", "Local Render",            
+            script_callback="hou.phm().data.renderLocal(kwargs['node'])",
+            script_callback_language=hou.scriptLanguage.Python)
+            
+        solvePath           = hou.ButtonParmTemplate("solvePath", "Solve Path From Asset Infos",
+            script_callback="hou.phm().data.solveRenderPath(kwargs['node'])",
+            script_callback_language=hou.scriptLanguage.Python)
+
+        folder.addParmTemplate(localRender)
+        folder.addParmTemplate(solvePath)
+
         presetScript        = "hou.phm().dataUI.applyArnoldRenderPreset(kwargs['node'])"
         preset              = hou.MenuParmTemplate("arPreset", "Preset",
             ("0", "1", "2"), 
@@ -238,8 +250,8 @@ class HDAParms(object):
         rayFolder.addParmTemplate(rVolume)
         rayFolder.addParmTemplate(rTransparency)
 
-        folder.addParmTemplate(preset)
         folder.addParmTemplate(renderFolder)
+        folder.addParmTemplate(preset)
         folder.addParmTemplate(sampleFolder)
         folder.addParmTemplate(rayFolder)
 
@@ -285,7 +297,7 @@ class HDAParms(object):
         blackBallFolder.addParmTemplate(blackBallSize)
 
         macbethFolder    = hou.FolderParmTemplate("macbethOpt", "Macbeth", folder_type=hou.folderType.Simple)
-        macbethLocation  = hou.FloatParmTemplate("macbethLocation", "Screen Location", 2, default_value=[0.93, 0.01])
+        macbethLocation  = hou.FloatParmTemplate("macbethLocation", "Screen Location", 2, default_value=[0.93, 0.1])
         macbethSize      = hou.FloatParmTemplate("macbethSize", "Screen Size", 1, default_value=[0.08])
         macbethFolder.addParmTemplate(macbethLocation)
         macbethFolder.addParmTemplate(macbethSize)
@@ -307,17 +319,36 @@ class HDAParms(object):
         """
 
         folder      = hou.FolderParmTemplate("assetTab", "Asset", folder_type=hou.folderType.Tabs)
-        assetName   = hou.StringParmTemplate("assetName", "Asset Name", 1)
+
+        assetInfos  = hou.FolderParmTemplate("assetInfos", "Asset Infos", folder_type=hou.folderType.Simple)
+
+        rootPath    = hou.StringParmTemplate("rootPath", "Root Path", 1, string_type=hou.stringParmType.FileReference, file_type=hou.fileType.Directory)
+        project     = hou.StringParmTemplate("project", "Project", 1)
+        category    = hou.StringParmTemplate("category", "Category", 1)
+        assetName   = hou.StringParmTemplate("assetName", "Asset", 1)
         task        = hou.StringParmTemplate("task", "Task", 1)
         step        = hou.StringParmTemplate("step", "Step", 1)
+        version     = hou.IntParmTemplate("version", "Version", 1)
+
+        assetInfos.addParmTemplate(rootPath)
+        assetInfos.addParmTemplate(project)
+        assetInfos.addParmTemplate(category)
+        assetInfos.addParmTemplate(assetName)
+        assetInfos.addParmTemplate(step)
+        assetInfos.addParmTemplate(task)
+        assetInfos.addParmTemplate(version)
+
+        folder.addParmTemplate(assetInfos)
+
+        mainGeo     = hou.FolderParmTemplate("mainGeo", "Main Geometry", folder_type=hou.folderType.Simple)
+
         geoType     = hou.MenuParmTemplate("geoType", "Type", ("0","1","2","3","4"), menu_labels=("ABC", "OBJ", "BGEO", "VDB", "ASS"))
         geoPath     = hou.StringParmTemplate("geoPath", "Path", 1, string_type=hou.stringParmType.FileReference)
 
-        folder.addParmTemplate(assetName)
-        folder.addParmTemplate(step)
-        folder.addParmTemplate(task)
-        folder.addParmTemplate(geoType)
-        folder.addParmTemplate(geoPath)
+        mainGeo.addParmTemplate(geoType)
+        mainGeo.addParmTemplate(geoPath)
+
+        folder.addParmTemplate(mainGeo)
 
         ptg.addParmTemplate(folder)
     
@@ -344,7 +375,10 @@ class HDAParms(object):
             ptg (:class:`hou.ParmTemplate`) : The parameter template to add the folder and parameters.
         """
         camFolder       = hou.FolderParmTemplate("cameraOpt#", "Camera", folder_type=hou.folderType.Collapsible)
-        camName         = hou.StringParmTemplate("camName#", "Name", 1, default_value=["camera"])
+        camName         = hou.StringParmTemplate("camName#", "Name", 1, default_value=["camera"],
+            script_callback="hou.phm().data.cameraNameChanged(kwargs['node'])",
+            script_callback_language=hou.scriptLanguage.Python)
+        camOldName      = hou.StringParmTemplate("camOldName#", "Old Name", 1, default_value=["camera"], is_hidden=True)
         camImageSize    = hou.FloatParmTemplate("camImageSize#", "Image Size", 2, default_value=[1920, 1080])
         camFocal        = hou.FloatParmTemplate("camFocal#", "Focal", 1, default_value=[50.0], min=0.0, max=1000.0)
         camAperture     = hou.FloatParmTemplate("camAperture#", "Aperture", 1, default_value=[41.4214], min=0.0, max=90.0)
@@ -352,6 +386,7 @@ class HDAParms(object):
         camFocus        = hou.MenuParmTemplate("camFocus#", "Focus", (), item_generator_script=camFocusScript, default_value=1)
 
         camFolder.addParmTemplate(camName)
+        camFolder.addParmTemplate(camOldName)
         camFolder.addParmTemplate(camImageSize)
         camFolder.addParmTemplate(camFocal)
         camFolder.addParmTemplate(camAperture)
@@ -369,13 +404,17 @@ class HDAParms(object):
 
         assetPivotScript    = """items = hou.phm().dataUI.getAssetParts(kwargs['node'])\nreturn items"""
         assetPivot          = hou.MenuParmTemplate("ttAssetPivot#", "Asset Pivot", (), item_generator_script=assetPivotScript, default_value=1)
-        preset              = hou.MenuParmTemplate("ttPreset#", "Preset", ("72", "24", "12"))
+        preset              = hou.MenuParmTemplate("ttPreset#", "Preset", ("72", "24", "12"),
+            script_callback="hou.phm().data.turnTablePresetChanged(kwargs['node'])",
+            script_callback_language=hou.scriptLanguage.Python)
         assetRotationY      = hou.IntParmTemplate("ttAssetRotationY#", "Asset Rotation Y", 1, default_value=[72], min=1, max=200)
         assetRotationX      = hou.IntParmTemplate("ttAssetRotationX#", "Asset Rotation X", 1, default_value=[72], min=1, max=200)
         hdriRotationY       = hou.IntParmTemplate("ttHDRIRotationY#", "HDRI Rotation Y", 1, default_value=[72], min=1, max=200)
+        oldPreset           = hou.StringParmTemplate("ttOldPreset#", "Old Preset", 1, default_value=["72"], is_hidden=True)
 
         folder.addParmTemplate(assetPivot)
         folder.addParmTemplate(preset)
+        folder.addParmTemplate(oldPreset)
         folder.addParmTemplate(assetRotationY)
         folder.addParmTemplate(assetRotationX)
         folder.addParmTemplate(hdriRotationY)
@@ -425,8 +464,8 @@ class HDAParms(object):
         shaderFolder    = hou.FolderParmTemplate("assetShaderOpt#", "Shader", folder_type=hou.folderType.Simple)
 
         shaderPreset    = hou.MenuParmTemplate("assetShaderPreset#", "Preset", 
-            ("0", "1", "2", "3", "4", "5", "6"), 
-            menu_labels=("Custom", "Clay", "Chrome", "Black", "Wires", "Glass", "Material X"),
+            ("0", "1", "2", "3", "4", "5", "6", "7"), 
+            menu_labels=("Custom", "Clay", "Chrome", "Black", "Wires", "Glass", "Jade", "Material X"),
             default_value=1)
         shaderMatX      = hou.StringParmTemplate("assetMaterialXFile#", "Material X File", 1, string_type=hou.stringParmType.FileReference, disable_when="{ assetShaderPreset# != 6 }")
 
@@ -445,7 +484,11 @@ class HDAParms(object):
             ptg (:class:`hou.ParmTemplateGroup`) : The parameter template to add the folder and parameters.
         """
         folder          = hou.FolderParmTemplate("camerasTab", "Cameras", folder_type=hou.folderType.Tabs)
-        cameras         = hou.FolderParmTemplate("cameras", "Cameras", folder_type=hou.folderType.MultiparmBlock, tags={"multistartoffset":"0"})
+        cameras         = hou.FolderParmTemplate("cameras", "Cameras", 
+            folder_type=hou.folderType.MultiparmBlock, 
+            tags={"multistartoffset":"0"},
+            script_callback="hou.phm().data.camerasCountChanged(kwargs['node'])",
+            script_callback_language=hou.scriptLanguage.Python)
 
         endSep          = hou.SeparatorParmTemplate("endSep#")
 

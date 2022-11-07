@@ -339,6 +339,7 @@ cameraParmMixer(
         // Use to setup the render frames range.
         int frameCounter = 0;
 
+
         // Loop over the cameras to mix the parameters.
         for(int i=0; i<cameraCount; i++){
 
@@ -372,67 +373,47 @@ cameraParmMixer(
         storeSubdivParm(subParm);
         storeShaderParm(shdParm);
     
+        // Get all frame to do the turn table.
+        int endFrame = 0;
+        for(int i=0; i<cameraCount; i++){
+            getTurnTableParm(i, ttParm);
+            endFrame += ttParm.frameCount;
+        }
+
+        setdetailattrib(geoself(), "endFrame", endFrame, "set");
+
     }
 
 }
 
 
 
+void
+cameraMixer(
+    int     mixerGeoID)
+{
+    // By default we use the transformation of the auto focus camera.
+    matrix camTrans         = optransform("../../AUTO_FOCUS_CAM");
+    // Get the camera name from the camera mixer parameters.
+    string currentCamera    = detail(mixerGeoID, "camName");
+    // Get the camera focus.
+    string focusCamera      = detail(mixerGeoID, "camFocus");
 
-/*
-struct CameraMixer{
-
-
-    void
-    mixCamTransform(
-        float frame)
-    {
-        // Get the auto focus cam.
-        matrix autoFocusTrans   = optransform("../../autoFocus");
-        matrix camTrans         = autoFocusTrans;
-        // Get the camera count.
-        int cameraCount = chi(concat(this.hdaRelativePath, "cameras"));
-        // Check if there are some cameras.
-        if(cameraCount > 0){
-            // Init the hda parameters.
-            this->getHDAParameters(0);
-            // Init the cumul of all camera frames.
-            int allCameraFrames = 0;
-            // Loop over the cameras.
-            for(int i=0; i<cameraCount; i++){
-                // Update the camera ID.
-                this.camID = i;
-                // Get the camera frames.
-                int camFrames   = this->getCameraFrames();
-                int camEndFrame = allCameraFrames + camFrames;
-                // Check if the current time match with the current cameras.
-                // We use the current camera setup to drive the turn table setup.
-                if(frame > allCameraFrames && frame <= camEndFrame){
-                    this->getHDAParameters(this.camID);
-
-                    if(this.focusPart != "free"){
-                        camTrans = autoFocusTrans;
-                    }else{
-                        camTrans = optransform(concat("../../CAMERAS/", this.camName));
-                    }
-
-                    break;
-                }
-
-                allCameraFrames += camFrames;
-            }
-
-            this.camPosition    = cracktransform(0, 0, 0, {0.0,0.0,0.0}, {0.0,0.0,0.0}, camTrans);
-            this.camRotation    = cracktransform(0, 0, 1, {0.0,0.0,0.0}, {0.0,0.0,0.0}, camTrans);
-            this.camScale       = cracktransform(0, 0, 2, {0.0,0.0,0.0}, {0.0,0.0,0.0}, camTrans);
-
-            setdetailattrib(geoself(), "camPosition", this.camPosition, "set");
-            setdetailattrib(geoself(), "camRotation", this.camRotation, "set");
-            setdetailattrib(geoself(), "camScale", this.camScale, "set");
-        }
+    // Check if we use the autoFocus cameras trans or the current camera transform.
+    if(focusCamera == "free"){
+        camTrans = optransform(concat("../../CAMERAS/", currentCamera));
     }
+    
+    // Split the camera transform to drive the render camera.
+    vector camPos   = cracktransform(0, 0, 0, {0.0,0.0,0.0}, {0.0,0.0,0.0}, camTrans);
+    vector camRot   = cracktransform(0, 0, 1, {0.0,0.0,0.0}, {0.0,0.0,0.0}, camTrans);
+    vector camScl   = cracktransform(0, 0, 2, {0.0,0.0,0.0}, {0.0,0.0,0.0}, camTrans);
+
+    setdetailattrib(geoself(), "camPosition", camPos, "set");
+    setdetailattrib(geoself(), "camRotation", camRot, "set");
+    setdetailattrib(geoself(), "camScale", camScl, "set");
+
+}
 
 
-};
-*/
 #endif

@@ -3,10 +3,10 @@ import hou
 
 class CameraParm(object):
 
-    def __init__(self):
+    def __init__(self, node=None, id=None):
 
-        self.node   = None
-        self.id     = 0
+        self.node   = node
+        self.id     = id
 
     def setName(self):
         """ Init the camera name if not correct.
@@ -26,6 +26,18 @@ class CameraParm(object):
             parmName (str) : The name of the parameter.
         """
         return self.node.parm(self.parmNameWithID(parmName)).evalAsString()
+
+    def getParm(self, parmName, multi=None):
+        """ Return the parameter.
+        
+        Args:
+            parmName    (str)           : The name of the parameters.
+            multi       (str or None)   : Set letter to get the vector parameter.
+        """
+        if(multi):
+            return self.node.parm("%s%d%s" % (parmName, self.id, multi))
+         
+        return self.node.parm("%s%d" % (parmName, self.id))
 
     def getParmValue(self, parmName, multi=None):
         """ Return the value of a parameter.
@@ -118,12 +130,20 @@ class CameraParm(object):
     
     @property
     def preset(self):
-        return self.getParmValue("ttPreset")
+        return self.getStringParmValue("ttPreset")
     
     @preset.setter
     def preset(self, value):
         self.setParmValue("ttPreset", value)
     
+    @property
+    def oldPreset(self):
+        return self.getStringParmValue("ttOldPreset")
+
+    @oldPreset.setter
+    def oldPreset(self, value):
+        self.setParmValue("ttOldPreset", value)
+
     @property
     def assetRotationY(self):
         return self.getParmValue("ttAssetRotationY")
