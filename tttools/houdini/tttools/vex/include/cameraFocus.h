@@ -25,6 +25,7 @@ cameraFocus(
     vector      bbCenter        = (bbMax + bbMin) * 0.5;
     // Compute the asset size.
     float       assetSize       = length(bbMax - bbMin);
+    assetSize *= 0.6;
     // Compute the camera position to correctly frame the asset.
     vector      camPos          = bbCenter;
     float       offsetFovX      = (assetSize * 0.5) / tan(radians(camFovX * 0.5));

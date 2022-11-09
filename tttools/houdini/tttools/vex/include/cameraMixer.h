@@ -63,6 +63,7 @@ cameraFocus(
     float       camFocal        = detail(mixerGeoID, "camFocal");
     float       camApertureX    = detail(mixerGeoID, "camAperture");
     string      camFocus        = detail(mixerGeoID, "camFocus");
+    float       camFocusAdjust  = detail(mixerGeoID, "camFocusAdjust");
     // Compute camera aspect ratio and FOVs.
     float       camAspectRatio  = camImageSize.x / camImageSize.y;
     float       camFovX         = degrees(2.0 * atan(camApertureX * 0.5 / camFocal));
@@ -75,6 +76,7 @@ cameraFocus(
     vector      bbCenter        = (bbMax + bbMin) * 0.5;
     // Compute the asset size.
     float       assetSize       = length(bbMax - bbMin);
+    assetSize *= camFocusAdjust;
     // Compute the camera position to correctly frame the asset.
     vector      camPos          = bbCenter;
     float       offsetFovX      = (assetSize * 0.5) / tan(radians(camFovX * 0.5));
@@ -133,6 +135,7 @@ struct CameraParm{
     float       focal;
     float       aperture;
     string      focus;
+    float       focusAdjust;
 }
 
 void
@@ -144,7 +147,8 @@ getCameraParm(
     camParm.imageSize   = getVector2Parm("camImageSize", camID, 1);
     camParm.focal       = getFloatParm("camFocal", camID, 1);
     camParm.aperture    = getFloatParm("camAperture", camID, 1);
-    camParm.focus       = getStringParm("camFocus", camID, 1); 
+    camParm.focus       = getStringParm("camFocus", camID, 1);
+    camParm.focusAdjust = getFloatParm("camFocusAdjust", camID, 1);
 }
 
 void
@@ -156,6 +160,7 @@ storeCameraParm(
     setdetailattrib(geoself(), "camFocal", camParm.focal, "set");
     setdetailattrib(geoself(), "camAperture", camParm.aperture, "set");
     setdetailattrib(geoself(), "camFocus", camParm.focus, "set");
+    setdetailattrib(geoself(), "camFocusAdjust", camParm.focusAdjust, "set");
 }
 
 struct TurnTableParm{

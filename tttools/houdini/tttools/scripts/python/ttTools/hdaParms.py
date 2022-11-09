@@ -204,7 +204,7 @@ class HDAParms(object):
         localRender         = hou.ButtonParmTemplate("localRender", "Local Render",            
             script_callback="hou.phm().data.renderLocal(kwargs['node'])",
             script_callback_language=hou.scriptLanguage.Python)
-            
+
         solvePath           = hou.ButtonParmTemplate("solvePath", "Solve Path From Asset Infos",
             script_callback="hou.phm().data.solveRenderPath(kwargs['node'])",
             script_callback_language=hou.scriptLanguage.Python)
@@ -384,6 +384,7 @@ class HDAParms(object):
         camAperture     = hou.FloatParmTemplate("camAperture#", "Aperture", 1, default_value=[41.4214], min=0.0, max=90.0)
         camFocusScript  = """items = hou.phm().dataUI.getAssetParts(kwargs['node'])\nreturn items"""
         camFocus        = hou.MenuParmTemplate("camFocus#", "Focus", (), item_generator_script=camFocusScript, default_value=1)
+        camFocusAdjust  = hou.FloatParmTemplate("camFocusAdjust#", "Auto Focus Adjust", 1, default_value=[1.0], min=0.0, max=2.0)
 
         camFolder.addParmTemplate(camName)
         camFolder.addParmTemplate(camOldName)
@@ -391,6 +392,7 @@ class HDAParms(object):
         camFolder.addParmTemplate(camFocal)
         camFolder.addParmTemplate(camAperture)
         camFolder.addParmTemplate(camFocus)
+        camFolder.addParmTemplate(camFocusAdjust)
 
         parent.addParmTemplate(camFolder)
 
