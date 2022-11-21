@@ -218,17 +218,17 @@ class CameraParm(object):
 
     @property
     def shaderPreset(self):
-        return self.getParmValue("shaderPreser")
+        return self.getParmValue("assetShaderPreset")
     
     @shaderPreset.setter
     def shaderPreset(self, value):
-        self.setParmValue("shaderPreset")
+        self.setParmValue("assetShaderPreset")
 
     @property
     def shaderMaterialX(self):
-        return self.getStringParmValue("shaderMaterialXFile")
+        return self.getStringParmValue("assetMaterialXFile")
     
     @shaderMaterialX.setter
     def shaderMaterialX(self, value):
-        self.setParmValue("shaderMaterialXFile", value)
+        self.setParmValue("assetMaterialXFile", value)
 

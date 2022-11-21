@@ -25,7 +25,7 @@ class TTHDA(object):
         # Update the current node.
         self.node = node
 
-        pathTemplate  = "<rootPath><project>/assets/<category>/<assetName>/publihs/<step>/v<version>/turn/<step>_<assetName>_<task>.<version>.$F4.exr"
+        pathTemplate  = "<rootPath><project>/assets/<category>/<assetName>/publish/<step>/v<version>/turn/<step>_<assetName>_<task>.<version>.$F4.exr"
 
         if(self.rootPath != "" and self.project != "" and self.assetName != "" and self.step != ""):
 
@@ -76,6 +76,74 @@ class TTHDA(object):
         
         return maxID
 
+    def getAssetInfosFromSG(self, node: hou.Node):
+        """ Update the asset infos from shotgrid context.
+
+        Args:
+            node (:class:`hou.Node`) : The current HDA node.
+        """
+        self.node = node
+
+        rootPath    = ""
+        project     = ""
+        category    = ""
+        asset       = ""
+        step        = ""
+        task        = ""
+        user        = ""
+
+        try:
+            import  sgtk
+            import  os
+
+            engine  = sgtk.platform.current_engine()
+            tk      = engine.sgtk
+            sg      = engine.shotgun
+
+            try:
+                context     = engine.context
+
+                sgStep      = context.step
+                sgStep      = sg.find_one("Step", [["id", "is", sgStep["id"]]], ["short_name"])
+
+                sgEntity    = context.entity
+                sgEntity    = sg.find_one("Asset", [["id", "is", sgEntity["id"]]], ["sg_asset_type", "code"])
+
+                project     = context.project["name"]
+                rootPath    = tk.project_path.split(project)[0]
+                category    = sgEntity["sg_asset_type"]
+                asset       = sgEntity["code"]
+                step        = sgStep["short_name"]
+                task        = context.task["name"]
+                user        = context.user["name"]
+
+            except:
+                warningMsg  = "Not Context Selected !"
+                rootPath    = warningMsg
+                project     = warningMsg
+                category    = warningMsg
+                asset       = warningMsg
+                step        = warningMsg
+                task        = warningMsg
+                user        = warningMsg
+        except:
+            warningMsg  = "ShotGrid Tool Kit not found !"
+            rootPath    = warningMsg
+            project     = warningMsg
+            category    = warningMsg
+            asset       = warningMsg
+            step        = warningMsg
+            task        = warningMsg
+            user        = warningMsg
+
+        self.node.parm("rootPath").set(rootPath)
+        self.node.parm("project").set(project)
+        self.node.parm("assetName").set(asset)
+        self.node.parm("category").set(category)
+        self.node.parm("step").set(step)
+        self.node.parm("task").set(task)
+        self.node.parm("userName").set(user)
+
     def setHDADefaultCameraName(self):
         """ Set the default rename naming.
 
@@ -120,6 +188,28 @@ class TTHDA(object):
         # Update teh cameras subnetwork.
         camNetwork.updateCameras()
 
+    def useMaterialX(self, node):
+        """ Launch when select shaders.
+
+        Args :
+            node (hou.Node) : The current HDA node.
+        """
+        # Update the current node.
+        self.node = node
+        # Get the cameras datas.
+        useMaterialX = False
+        for camParm in self.camerasParms:
+            if(camParm.shaderPreset == 8):
+                useMaterialX = True
+                break
+
+        # Add expression to the material X node.
+        matXNode = self.getMaterialXNode
+       
+        if(useMaterialX is True):
+            matXNode.parm("filename").setExpression("details('../../MIXER/CAM_MIX', 'shaderMaterialX')", language=hou.exprLanguage.Hscript)
+        else:
+            matXNode.parm("filename").deleteAllKeyframes()
 
     @property
     def rootPath(self):
@@ -214,6 +304,10 @@ class TTHDA(object):
     def camerasParms(self):
         camCount = self.camerasCount
         return [CameraParm(self.node, i) for i in range(camCount)]
+    
+    @property
+    def getMaterialXNode(self):
+        return self.node.node("RENDER").node("materialx")
     
 
     

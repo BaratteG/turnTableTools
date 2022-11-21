@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.tx
+*.nk.autosave
 
 tttools/houdini/tttools/otls/backup
 tttools/houdini/hip/backup

@@ -24,7 +24,6 @@ ballsAndMacbethTransform(
         vector  refScreenLocation   = point(packedGeoID, "screenLocation", i);
         float   refScale            = point(packedGeoID, "scale", i);
     }
-
 }
 
 
@@ -76,6 +75,11 @@ cameraFocus(
     vector      bbCenter        = (bbMax + bbMin) * 0.5;
     // Compute the asset size.
     float       assetSize       = length(bbMax - bbMin);
+    setdetailattrib(geoself(), "assetSize", assetSize, "set");
+    // Ref Asset Size.
+    float refAssetSize = 266.542;
+    float sssScale = refAssetSize / assetSize;
+    setdetailattrib(geoself(), "sssScale", sssScale, "set");
     assetSize *= camFocusAdjust;
     // Compute the camera position to correctly frame the asset.
     vector      camPos          = bbCenter;
@@ -87,8 +91,8 @@ cameraFocus(
     }
     // Store the position.
     setdetailattrib(geoself(), "camPos", camPos, "set");
+    
 
-    setdetailattrib(geoself(), "temp", assetSize, "set");
 }
 
 void
@@ -130,12 +134,12 @@ assetMix()
 }
 
 struct CameraParm{
-    string      name;
-    vector2     imageSize;
-    float       focal;
-    float       aperture;
-    string      focus;
-    float       focusAdjust;
+    string      name        = "";
+    vector2     imageSize   = {1920,1080};
+    float       focal       = 50;
+    float       aperture    = 41.4214;
+    string      focus       = "All";
+    float       focusAdjust = 1.0;
 }
 
 void
@@ -164,14 +168,14 @@ storeCameraParm(
 }
 
 struct TurnTableParm{
-    string      assetPivot;
-    int         assetRotationX;
-    int         assetRotationY;
-    int         hdriRotationY;
-    int         frameCount;
-    float       assetAngleX;
-    float       assetAngleY;
-    float       hdriAngleY;
+    string      assetPivot      = "All";
+    int         assetRotationX  = 24;
+    int         assetRotationY  = 24;
+    int         hdriRotationY   = 24;
+    int         frameCount      = 100;
+    float       assetAngleX     = 0.0;
+    float       assetAngleY     = 0.0;
+    float       hdriAngleY      = 0.0;
 }
 
 void
@@ -200,10 +204,10 @@ storeTurnTableParm(
 }
 
 struct HDRIParm{
-    string  path;
-    float   intensity;
-    int     useBGColor;
-    vector  bgColor;
+    string  path        = "";
+    float   intensity   = 1.0;
+    int     useBGColor  = 0;
+    vector  bgColor     = {0.18,0.18,0.18};
 }
 
 void
@@ -229,8 +233,8 @@ storeHDRIParm(
 }
 
 struct SubdivParm{
-    string  type;
-    int     iteration;
+    string  type        = "None";
+    int     iteration   = 0;
 }
 
 void
@@ -251,8 +255,8 @@ storeSubdivParm(
 }
 
 struct ShaderParm{
-    int     preset;
-    string  materialX;
+    int     preset      = 1;
+    string  materialX   = "";
 }
 
 void
@@ -270,6 +274,11 @@ storeShaderParm(
 {
     setdetailattrib(geoself(), "shaderPreset", shdParm.preset, "set");
     setdetailattrib(geoself(), "shaderMaterialX", shdParm.materialX, "set");
+    if(shdParm.preset == 8){
+        setdetailattrib(geoself(), "shaderUseMaterialX", 1, "set");
+    }else{
+        setdetailattrib(geoself(), "shaderUseMaterialX", 0, "set");
+    }
 }
 
 void
@@ -326,13 +335,14 @@ cameraParmMixer(
     string  hdriPath        = getStringParm("hdriPath", 0, 0);
     int     cameraCount     = getIntParm("cameras", 0, 0);
 
+    // Get the camera parameters.
+    CameraParm      camParm;
+    TurnTableParm   ttParm;
+    HDRIParm        hdriParm;
+    SubdivParm      subParm;
+    ShaderParm      shdParm;
+
     if(cameraCount > 0){
-        // Get the camera parameters.
-        CameraParm      camParm;
-        TurnTableParm   ttParm;
-        HDRIParm        hdriParm;
-        SubdivParm      subParm;
-        ShaderParm      shdParm;
 
         getCameraParm(0, camParm);
         getTurnTableParm(0, ttParm);
@@ -371,13 +381,6 @@ cameraParmMixer(
             frameCounter = endFrame;
         }
 
-        // Store the mixed parameters.
-        storeCameraParm(camParm);
-        storeTurnTableParm(ttParm);
-        storeHDRIParm(hdriParm);
-        storeSubdivParm(subParm);
-        storeShaderParm(shdParm);
-    
         // Get all frame to do the turn table.
         int endFrame = 0;
         for(int i=0; i<cameraCount; i++){
@@ -386,8 +389,15 @@ cameraParmMixer(
         }
 
         setdetailattrib(geoself(), "endFrame", endFrame, "set");
-
     }
+    
+    // Store the mixed parameters.
+    storeCameraParm(camParm);
+    storeTurnTableParm(ttParm);
+    storeHDRIParm(hdriParm);
+    storeSubdivParm(subParm);
+    storeShaderParm(shdParm);
+
 
 }
 

@@ -1,0 +1,147 @@
+#! C:/Program Files/Nuke13.2v3/nuke-13.2.3.dll -nx
+version 13.2 v3
+define_window_layout_xml {<?xml version="1.0" encoding="UTF-8"?>
+<layout version="1.0">
+    <window x="0" y="0" w="1917" h="1008" screen="0">
+        <splitter orientation="1">
+            <split size="40"/>
+            <dock id="" hideTitles="1" activePageId="Toolbar.1">
+                <page id="Toolbar.1"/>
+            </dock>
+            <split size="1336" stretch="1"/>
+            <splitter orientation="2">
+                <split size="719"/>
+                <dock id="" activePageId="Viewer.1" focus="true">
+                    <page id="Viewer.1"/>
+                </dock>
+                <split size="247"/>
+                <dock id="" activePageId="DAG.1">
+                    <page id="DAG.1"/>
+                    <page id="Curve Editor.1"/>
+                    <page id="DopeSheet.1"/>
+                </dock>
+            </splitter>
+            <split size="533"/>
+            <dock id="" activePageId="Properties.1">
+                <page id="Properties.1"/>
+                <page id="uk.co.thefoundry.backgroundrenderview.1"/>
+            </dock>
+        </splitter>
+    </window>
+</layout>
+}
+Root {
+ inputs 0
+ name C:/Users/gbaratte/Documents/DEV/turnTableTools/tttools/nukr/.nk
+ frame 71
+ last_frame 120
+ lock_range true
+ format "2048 1556 0 0 2048 1556 1 2K_Super_35(full-ap)"
+ proxy_type scale
+ proxy_format "1024 778 0 0 1024 778 1 1K_Super_35(full-ap)"
+ colorManagement OCIO
+ defaultViewerLUT "OCIO LUTs"
+ workingSpaceLUT scene_linear
+ monitorLut ACES/sRGB
+ monitorOutLUT "sRGB (ACES)"
+ int8Lut matte_paint
+ int16Lut texture_paint
+ logLut compositing_log
+ floatLut scene_linear
+}
+Read {
+ inputs 0
+ file_type exr
+ file Y:/shows/RND/assets/Character/turnTest/publish/MDL/v003/turn/MDL_turnTest_modeling.003.####.exr
+ format "1920 1080 0 0 1920 1080 1 HD_1080"
+ last 63
+ origlast 63
+ origset true
+ version 2
+ name Read1
+ selected true
+ xpos -27
+ ypos -113
+}
+Text2 {
+ font_size_toolbar 20
+ font_width_toolbar 100
+ font_height_toolbar 100
+ message "PROJECT\nASSET\nSTEP\nVERSION\nRENDER TIME\nMEMORY PEAK\nUSER"
+ old_message {{80 82 79 74 69 67 84 10 65 83 83 69 84 10 83 84 69 80 10 86 69 82 83 73 79 78 10 82 69 78 68 69 82 32 84 73 77 69 10 77 69 77 79 82 89 32 80 69 65 75 10 85 83 69 82}
+   }
+ box {5 652 269.3999939 1075}
+ transforms {{0 2}
+   }
+ font_size_values {{0 20 1 20 2 20 3 20 4 20 5 20 6 20 7 20 8 20 9 20 10 20 11 20 12 20 13 20 14 20 15 20 16 20 17 20 18 20 19 20 20 20 21 20 22 20 23 20 24 20 25 20 26 20 27 20 28 20 29 20 30 20 31 20 32 20 33 20 34 20 35 20 36 20 37 20 38 20 39 20 40 20 41 20 42 20 43 20 44 20 45 20 46 20 47 20 48 20 49 20 50 20 51 20 52 20 53 20 54 20}
+   }
+ tracking_values {{0 0 1 0 2 0 3 0 4 0 5 0 6 0 7 0 8 0 9 0 10 0 11 0 12 0 13 0 14 0 15 0 16 0 17 0 18 0 19 0 20 0 21 0 22 0 23 0 24 0 25 0 26 0 27 0 28 0 29 0 30 0 31 0 32 0 33 0 34 0 35 0 36 0 37 0 38 0 39 0 40 0 41 0 42 0 43 0 44 0 45 0 46 0 47 0 48 0 49 0 50 0 51 0 52 0 53 0 54 0 0 0 1 0 2 0 3 0 4 0 5 0 6 0 7 0 8 0 9 0 10 0 11 0 12 0 13 0 14 0 15 0 16 0 17 0 18 0 19 0 20 0 21 0 22 0 23 0 24 0 25 0 26 0 27 0 28 0 29 0 30 0 31 0 32 0 33 0 34 0 35 0 36 0 37 0 38 0 39 0 40 0 41 0 42 0 43 0 44 0 45 0 46 0 47 0 48 0 49 0 50 0 51 0 52 0 53 0 54 0}
+   }
+ baseline_values {{0 0 1 0 2 0 3 0 4 0 5 0 6 0 7 0 8 0 9 0 10 0 11 0 12 0 13 0 14 0 15 0 16 0 17 0 18 0 19 0 20 0 21 0 22 0 23 0 24 0 25 0 26 0 27 0 28 0 29 0 30 0 31 0 32 0 33 0 34 0 35 0 36 0 37 0 38 0 39 0 40 0 41 0 42 0 43 0 44 0 45 0 46 0 47 0 48 0 49 0 50 0 51 0 52 0 53 0 54 0 0 0 1 0 2 0 3 0 4 0 5 0 6 0 7 0 8 0 9 0 10 0 11 0 12 0 13 0 14 0 15 0 16 0 17 0 18 0 19 0 20 0 21 0 22 0 23 0 24 0 25 0 26 0 27 0 28 0 29 0 30 0 31 0 32 0 33 0 34 0 35 0 36 0 37 0 38 0 39 0 40 0 41 0 42 0 43 0 44 0 45 0 46 0 47 0 48 0 49 0 50 0 51 0 52 0 53 0 54 0}
+   }
+ cursor_position 55
+ font {{ Gadugi : Bold : gadugib.ttf : 0 }}
+ font_size 20
+ leading 0.1
+ center {1024 778}
+ cursor_initialised true
+ autofit_bbox false
+ initial_cursor_position {{0 1080.099976}
+   }
+ group_animations {{0} imported: 0 selected: items: "root transform/"}
+ animation_layers {{1 11 1024 778 0 0 1 1 0 0 0 0}
+   }
+ color 0.7
+ enable_shadows true
+ shadow_opacity 0.4
+ shadow_distance 2
+ shadow_softness 1.5
+ shadow_size 1.3
+ name Text1
+ xpos -27
+ ypos 22
+}
+Text2 {
+ font_size_toolbar 20
+ font_width_toolbar 100
+ font_height_toolbar 100
+ message "\[metadata exr/project ]\n\[metadata exr/assetName]\n\[metadata exr/step]\n\[metadata exr/version]\n\[metadata exr/arnold/stats/time/render] sec\n\[metadata exr/arnold/stats/memory/peak] Mo\n\[metadata exr/userName]"
+ old_message {{82 78 68 10 116 117 114 110 84 101 115 116 10 77 68 76 10 10 56 46 52 50 57 55 55 32 115 101 99 10 52 57 54 46 54 52 49 32 77 111 10 71 117 105 108 108 97 117 109 101 32 66 97 114 97 116 116 101}
+   }
+ old_expression_markers {{0 2 4 11 13 15 17 16 18 24 30 36 41 57}
+   }
+ box {166 654.5 700 1075}
+ transforms {{0 2}
+   }
+ font_size_values {{3 20 4 20 5 20 6 20 7 20 8 20 9 20 10 20 11 20 12 20 13 20 14 20 15 20 16 20 17 20 18 20 19 20 20 20 21 20 22 20 23 20 24 20 25 20 26 20 27 20 28 20 29 20 30 20 31 20 32 20 33 20 34 20 35 20 36 20 37 20 38 20 39 20 40 20 41 20 42 20 43 20 44 20 45 20 46 20 47 20 48 20 49 20 50 20 51 20 52 20 53 20 54 20 55 20 56 20 57 20 0 20 1 20 2 20}
+   }
+ cursor_position 202
+ font {{ Gadugi : Regular : gadugi.ttf : 0 }}
+ font_size 20
+ leading 0.1
+ center {1024 778}
+ cursor_initialised true
+ autofit_bbox false
+ initial_cursor_position {{0 1080.099976}
+   }
+ group_animations {{0} imported: 0 selected: items: "root transform/"}
+ animation_layers {{1 11 1024 778 0 0 1 1 0 0 0 0}
+   }
+ color 0.8
+ enable_shadows true
+ shadow_opacity 0.4
+ shadow_distance 2
+ shadow_softness 1.5
+ shadow_size 1.3
+ name Text2
+ xpos -27
+ ypos 63
+}
+Viewer {
+ frame 71
+ frame_range 1-120
+ viewerProcess "sRGB (ACES)"
+ name Viewer1
+ xpos -27
+ ypos 102
+}

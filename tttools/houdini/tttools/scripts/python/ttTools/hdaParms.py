@@ -78,6 +78,11 @@ class HDAParms(object):
                 "assetRotationX" : 72,
                 "hdriRotationY"  : 72
             },
+            "48" : {
+                "assetRotationY" : 48,
+                "assetRotationX" : 48,
+                "hdriRotationY"  : 48
+            },
             "24" : {
                 "assetRotationY" : 24,
                 "assetRotationX" : 24,
@@ -90,30 +95,32 @@ class HDAParms(object):
             }
         }
 
-
     def getAssetParts(self, node: hou.Node):
         """ Get the asset part list from the asset geometry group.
 
         Args:
             node (:class:`hou.Node`) : The current HDA node.
         """
-        # Update the current node.
-        self.node = node
-        # Get the asset geometry node.
-        assetNode = self.node.node("ASSET").node("OUT_FOCUS_CAMERA")
-        # Get the asset geometry primitive group list.
-        assetGeo = assetNode.geometry()
-        if(assetGeo):
-            groupList = assetGeo.primGroups()
-            # Define the menulist.
-            menulist = ["free", "free"]
-            for group in groupList:
-                menulist.append(group.name())
-                menulist.append(group.name())
+        try:
+            # Update the current node.
+            self.node = node
+            # Get the asset geometry node.
+            assetNode = self.node.node("ASSET").node("OUT_FOCUS_CAMERA")
+            # Get the asset geometry primitive group list.
+            assetGeo = assetNode.geometry()
+            if(assetGeo):
+                groupList = assetGeo.primGroups()
+                # Define the menulist.
+                menulist = ["free", "free"]
+                for group in groupList:
+                    menulist.append(group.name())
+                    menulist.append(group.name())
 
-            return menulist
-        
-        return ["No Geoemetry", "No Geometry"]
+                return menulist
+            
+            return ["No Geoemetry", "No Geometry"]
+        except:
+            return ["No Geoemetry", "No Geometry"]
 
     def getHDRIListFromFolder(self, node: hou.Node):
         """ Get the list of the hdri file in the hdri folder.
@@ -344,9 +351,11 @@ class HDAParms(object):
 
         geoType     = hou.MenuParmTemplate("geoType", "Type", ("0","1","2","3","4"), menu_labels=("ABC", "OBJ", "BGEO", "VDB", "ASS"))
         geoPath     = hou.StringParmTemplate("geoPath", "Path", 1, string_type=hou.stringParmType.FileReference)
+        sssScale    = hou.FloatParmTemplate("geoShaderScale", "Shader Scale", 1, default_value=[1.0])
 
         mainGeo.addParmTemplate(geoType)
         mainGeo.addParmTemplate(geoPath)
+        mainGeo.addParmTemplate(sssScale)
 
         folder.addParmTemplate(mainGeo)
 
@@ -384,7 +393,7 @@ class HDAParms(object):
         camAperture     = hou.FloatParmTemplate("camAperture#", "Aperture", 1, default_value=[41.4214], min=0.0, max=90.0)
         camFocusScript  = """items = hou.phm().dataUI.getAssetParts(kwargs['node'])\nreturn items"""
         camFocus        = hou.MenuParmTemplate("camFocus#", "Focus", (), item_generator_script=camFocusScript, default_value=1)
-        camFocusAdjust  = hou.FloatParmTemplate("camFocusAdjust#", "Auto Focus Adjust", 1, default_value=[1.0], min=0.0, max=2.0)
+        camFocusAdjust  = hou.FloatParmTemplate("camFocusAdjust#", "Auto Focus Adjust", 1, default_value=[0.8], min=0.0, max=2.0)
 
         camFolder.addParmTemplate(camName)
         camFolder.addParmTemplate(camOldName)
@@ -406,7 +415,7 @@ class HDAParms(object):
 
         assetPivotScript    = """items = hou.phm().dataUI.getAssetParts(kwargs['node'])\nreturn items"""
         assetPivot          = hou.MenuParmTemplate("ttAssetPivot#", "Asset Pivot", (), item_generator_script=assetPivotScript, default_value=1)
-        preset              = hou.MenuParmTemplate("ttPreset#", "Preset", ("72", "24", "12"),
+        preset              = hou.MenuParmTemplate("ttPreset#", "Preset", ("72", "48", "24", "12"),
             script_callback="hou.phm().data.turnTablePresetChanged(kwargs['node'])",
             script_callback_language=hou.scriptLanguage.Python)
         assetRotationY      = hou.IntParmTemplate("ttAssetRotationY#", "Asset Rotation Y", 1, default_value=[72], min=1, max=200)
@@ -466,10 +475,13 @@ class HDAParms(object):
         shaderFolder    = hou.FolderParmTemplate("assetShaderOpt#", "Shader", folder_type=hou.folderType.Simple)
 
         shaderPreset    = hou.MenuParmTemplate("assetShaderPreset#", "Preset", 
-            ("0", "1", "2", "3", "4", "5", "6", "7"), 
-            menu_labels=("Custom", "Clay", "Chrome", "Black", "Wires", "Glass", "Jade", "Material X"),
-            default_value=1)
-        shaderMatX      = hou.StringParmTemplate("assetMaterialXFile#", "Material X File", 1, string_type=hou.stringParmType.FileReference, disable_when="{ assetShaderPreset# != 6 }")
+            ("0", "1", "2", "3", "4", "5", "6", "7", "8"), 
+            menu_labels=("Custom", "Brown Clay", "Grey Clay", "Chrome", "Black", "Wires", "Glass", "Jade", "Material X"),
+            default_value=1,
+            script_callback="hou.phm().data.useMaterialX(kwargs['node'])",
+            script_callback_language=hou.scriptLanguage.Python)
+
+        shaderMatX      = hou.StringParmTemplate("assetMaterialXFile#", "Material X File", 1, string_type=hou.stringParmType.FileReference, disable_when="{ assetShaderPreset# != 8 }")
 
         shaderFolder.addParmTemplate(shaderPreset)
         shaderFolder.addParmTemplate(shaderMatX)
